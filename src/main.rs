@@ -1,20 +1,10 @@
-// src/main.rs
-use axum::{routing::get, Router};
-use std::net::SocketAddr;
+use tiny_http::{Server, Response};
 
-#[tokio::main]
-async fn main() {
-    // build our application with a single route
-    let app = Router::new().route("/", get(handler));
+fn main() {
+    let server = Server::http("0.0.0.0:8080").unwrap();
 
-    // run it
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
-    println!("Server listening on {}", addr);
-    axum::serve(tokio::net::TcpListener::bind(&addr).await.unwrap(), app)
-        .await
-        .unwrap();
-}
-
-async fn handler() -> &'static str {
-    "Hello, Rust HTTP Server!"
+    for request in server.incoming_requests() {
+        let response = Response::from_string("Hello, world!");
+        request.respond(response).unwrap();
+    }
 }
